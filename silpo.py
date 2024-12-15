@@ -17,7 +17,7 @@ def get_silpo_products(url):
         
         soup = BeautifulSoup(response.text, 'html.parser')
         
-        # Check if the "Показати ще" button is disabled (indicating the last page)
+        # Check if the button is disabled (indicating the last page)
         load_more_button = soup.find('button', class_='pagination__more')
         if load_more_button and 'disabled' in load_more_button.attrs:
             print(f"Reached the last page: {current_page}")
@@ -37,7 +37,6 @@ def get_silpo_products(url):
                 if product_link:
                     product_url = product_link.get('href')
                     if product_url:
-                        # Full URL might need to be constructed if it's relative
                         full_url = f"https://silpo.ua{product_url}"
                         product_names[product_name] = {"url":full_url, "price":product_price}
         
@@ -45,10 +44,7 @@ def get_silpo_products(url):
         if not product_card:
             print(f"No products found on page {current_page}. Stopping.")
             break
-        
-        # # Add the products from the current page to the overall list
-        # product_names.update(page_product_names)
-        
+
         # Move to the next page
         current_page += 1
 

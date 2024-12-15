@@ -19,6 +19,7 @@ def get_and_match_masterzoo_products(url, products_df):
 
             soup = BeautifulSoup(html_content, 'html.parser')
             item = soup.find('div', class_='multi-item')
+            # If item found store it in result 
             if item:
                 product_url = item.find('a')['href']
                 price = item.find('span', class_='multi-price').text.strip()

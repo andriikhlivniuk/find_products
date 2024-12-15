@@ -33,7 +33,7 @@ def scrap_varus_products_from_page(soup, product_dict):
                     special_price = None  # If no price is found, mark it as N/A
 
 
-        # Save product info in dictionary (only the name, URL, and current price)
+        # Save product info in dictionary
         product_dict[product_name] = {
             'url': product_url,
             'price': special_price
