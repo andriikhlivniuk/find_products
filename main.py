@@ -1,4 +1,4 @@
-from fuzzywuzzy import fuzz
+from rapidfuzz import fuzz, process
 import pandas as pd
 from atb import get_atb_products
 from varus import get_varus_products
@@ -12,40 +12,39 @@ class ProductMatcher:
         self.silpo_products = silpo_products or {}
         self.varus_products = varus_products or {}
 
-    def _best_match_helper(self, store_products, index, row, store_name):
+    def _best_match_helper(self, store_products, index, row, store_name, threshold=70):
         best_match = None
         found_url = None
         found_price = None
-        highest_score = 70
-        if store_name == 'atb':
-            highest_score = 55
 
         words = row['Назва Товару'].split()
         brand = words[1] if len(words) > 1 else None
 
         for product, price_and_url in store_products.items():
-
+            # Skip products that don’t match the brand
             if brand and brand.lower() not in product.lower():
                 continue
 
-            score = fuzz.ratio(row['Назва Товару'], product)
+            # Compute similarity score
+            score = fuzz.ratio(row['Назва Товару'].lower(), product.lower())
 
-            if score > highest_score:
-                highest_score = score
+            if score > threshold:
+                threshold = score
                 best_match = product
                 found_url = price_and_url['url']
                 found_price = price_and_url['price']
 
+        # Record the best match if found
         if best_match:
             self.my_products.loc[index, f'{store_name}_url'] = found_url
             self.my_products.loc[index, f'{store_name}_price'] = found_price
+ 
 
     def find_best_match(self):
         for index, row in self.my_products.iterrows():
             self._best_match_helper(self.silpo_products, index, row, "silpo")
-            self._best_match_helper(self.atb_products, index, row, "atb")
+            self._best_match_helper(self.atb_products, index, row, "atb", threshold=55)
             self._best_match_helper(self.varus_products, index, row, "varus")
-
         return self.my_products
 
 def main():
